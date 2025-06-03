@@ -20,6 +20,28 @@ func (b *BudgetApp) AddExpense(category string, amount float64) {
 	b.Expenses = append(b.Expenses, Expense{Category: category, Amount: amount})
 }
 
+func (b *BudgetApp) UbahBudgetInteractive() {
+	var input string
+	var budgetBaru float64
+
+	for {
+		fmt.Print("Masukkan anggaran baru: ")
+		fmt.Scanln(&input)
+
+		nilai, err := strconv.ParseFloat(input, 64)
+		if err != nil {
+			fmt.Println("Input Tidak Valid!")
+			continue
+		}
+
+		budgetBaru = nilai
+		break
+	}
+
+	b.Budget = budgetBaru
+	fmt.Println("✅ Anggaran berhasil diatur ulang.")
+}
+
 func (b *BudgetApp) AddExpenseInteractive() {
 	var input string
 	var choice int
@@ -186,6 +208,49 @@ func (b *BudgetApp) SuggestSaving() {
 		fmt.Println("Saran: Pengeluaran Anda lebih hemat dari anggaran. Pertahankan!")
 	}
 }
+func (b *BudgetApp) SearchInteractive() {
+	for {
+		fmt.Println("Pilih metode pencarian:")
+		fmt.Println("1. Sequential Search")
+		fmt.Println("2. Binary Search")
+		fmt.Print("Pilihan Anda: ")
+
+		var searchChoice int
+		fmt.Scanln(&searchChoice)
+
+		if searchChoice != 1 && searchChoice != 2 {
+			fmt.Println("Pilihan tidak valid!")
+			continue
+		}
+
+		fmt.Print("Masukkan kategori: ")
+		var category string
+		fmt.Scanln(&category)
+
+		switch searchChoice {
+		case 1:
+			results := b.SearchSequential(category)
+			if len(results) > 0 {
+				for _, e := range results {
+					fmt.Printf("Hasil (sequential) - %s: %.2f\n", e.Category, e.Amount)
+				}
+			} else {
+				fmt.Println("Tidak ditemukan dengan sequential search.")
+			}
+		case 2:
+			results := b.SearchBinary(category)
+			if len(results) > 0 {
+				for _, e := range results {
+					fmt.Printf("Hasil (binary) - %s: %.2f\n", e.Category, e.Amount)
+				}
+			} else {
+				fmt.Println("Tidak ditemukan dengan binary search.")
+			}
+		}
+
+		break
+	}
+}
 
 func (b *BudgetApp) SearchSequential(category string) []Expense {
 	var result []Expense
@@ -229,6 +294,39 @@ func (b *BudgetApp) SearchBinary(category string) []Expense {
 	}
 
 	return results
+}
+func (b *BudgetApp) TampilkanExpenses() {
+	var input string
+	var sortOpt int
+
+	b.PrintExpensesWithIndex()
+
+	for {
+		fmt.Println("\nUrutkan data pengeluaran?")
+		fmt.Println("1. Urutkan Berdasarkan Kategori")
+		fmt.Println("2. Urutkan Berdasarkan Jumlah")
+		fmt.Println("3. Tidak")
+		fmt.Print("Pilihan Anda: ")
+		fmt.Scanln(&input)
+
+		parsedOpt, err := strconv.Atoi(input)
+		if err != nil || parsedOpt < 1 || parsedOpt > 3 {
+			fmt.Println("Pilihan tidak valid!")
+			continue
+		}
+
+		sortOpt = parsedOpt
+		break
+	}
+
+	switch sortOpt {
+	case 1:
+		b.SortByCategory()
+	case 2:
+		b.SelectionSortByAmount()
+	}
+
+	b.PrintExpensesWithIndex()
 }
 
 // Selection Sort
@@ -303,25 +401,7 @@ func main() {
 
 		switch menu {
 		case 1:
-			var input string
-			var budgetBaru float64
-
-			for {
-				fmt.Print("Masukkan anggaran baru: ")
-				fmt.Scanln(&input)
-
-				nilai, err := strconv.ParseFloat(input, 64)
-				if err != nil {
-					fmt.Println("Input Tidak Valid!")
-					continue
-				}
-
-				budgetBaru = nilai
-				break
-			}
-
-			app.Budget = budgetBaru
-			fmt.Println("Anggaran berhasil diatur ulang.")
+			app.UbahBudgetInteractive()
 
 		case 2:
 			app.AddExpenseInteractive()
@@ -333,79 +413,9 @@ func main() {
 			app.DeleteExpenseInteractive()
 
 		case 5:
-			var input string
-			var sortOpt int
-
-			for {
-				fmt.Println("\nUrutkan data pengeluaran?")
-				fmt.Println("1. Urutkan Berdasarkan Kategori")
-				fmt.Println("2. Urutkan Berdasarkan Jumlah")
-				fmt.Println("3. Tidak")
-				fmt.Print("Pilihan Anda: ")
-				fmt.Scanln(&input)
-
-				parsedOpt, err := strconv.Atoi(input)
-				if err != nil || parsedOpt < 1 || parsedOpt > 3 {
-					fmt.Println("Pilihan tidak valid!")
-					continue
-				}
-
-				sortOpt = parsedOpt
-				break
-			}
-
-			switch sortOpt {
-			case 1:
-				app.SortByCategory()
-			case 2:
-				app.SelectionSortByAmount()
-			}
-
-			app.PrintExpensesWithIndex()
-
+			app.TampilkanExpenses()
 		case 6:
-			for {
-				fmt.Println("Pilih metode pencarian:")
-				fmt.Println("1. Sequential Search")
-				fmt.Println("2. Binary Search")
-				fmt.Print("Pilihan Anda: ")
-
-				var searchChoice int
-				fmt.Scanln(&searchChoice)
-
-				if searchChoice != 1 && searchChoice != 2 {
-					fmt.Println("Pilihan tidak valid!")
-					continue
-				}
-
-				fmt.Print("Masukkan kategori: ")
-				var category string
-				fmt.Scanln(&category)
-
-				switch searchChoice {
-				case 1:
-					results := app.SearchSequential(category)
-					if len(results) > 0 {
-						for _, e := range results {
-							fmt.Printf("Hasil (sequential) - %s: %.2f\n", e.Category, e.Amount)
-						}
-					} else {
-						fmt.Println("Tidak ditemukan dengan sequential search.")
-					}
-				case 2:
-					results := app.SearchBinary(category)
-					if len(results) > 0 {
-						for _, e := range results {
-							fmt.Printf("Hasil (binary) - %s: %.2f\n", e.Category, e.Amount)
-						}
-					} else {
-						fmt.Println("Tidak ditemukan dengan binary search.")
-					}
-				}
-
-				break
-			}
-
+			app.SearchInteractive()
 		case 7:
 			fmt.Println("Keluar dari program.")
 			return
