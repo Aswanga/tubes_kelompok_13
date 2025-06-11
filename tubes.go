@@ -21,26 +21,24 @@ func (b *BudgetApp) AddExpense(category string, amount float64) {
 }
 
 func (b *BudgetApp) UbahBudgetInteractive() {
-	var input string
 	var budgetBaru float64
 
 	for {
 		fmt.Print("Masukkan anggaran baru: ")
-		fmt.Scanln(&input)
+		_, err := fmt.Scanln(&budgetBaru)
 
-		nilai, err := strconv.ParseFloat(input, 64)
-		if err != nil {
+		if err != nil || budgetBaru < 0 {
 			fmt.Println("Input Tidak Valid!")
 			continue
 		}
 
-		budgetBaru = nilai
 		break
 	}
 
 	b.Budget = budgetBaru
-	fmt.Println("✅ Anggaran berhasil diatur ulang.")
+	fmt.Println("Anggaran berhasil diatur ulang.")
 }
+
 
 func (b *BudgetApp) AddExpenseInteractive() {
 	var input string
